@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>AstroTools – TOP 400</title>
+  <title>AstroTools – Estadísticas de recursos</title>
   <style>
     body {
       margin: 0;
@@ -40,7 +40,7 @@
 
     main {
       padding: 20px;
-      max-width: 900px; /* 🔥 TABLA MÁS ESTRECHA */
+      max-width: 900px;
       margin: auto;
     }
 
@@ -50,7 +50,7 @@
       margin-top: 20px;
       font-size: 14px;
       background: #0b1220;
-      table-layout: fixed; /* 🔥 COLUMNAS COMPACTAS */
+      table-layout: fixed;
     }
 
     th, td {
@@ -80,11 +80,10 @@
       background: #1e2a44;
     }
 
-    /* 🔥 COLUMNAS MÁS ESTRECHAS */
     th:nth-child(1), td:nth-child(1) { width: 40px; }
-    th:nth-child(2), td:nth-child(2) { width: 180px; } /* Jugador */
-    th:nth-child(3), td:nth-child(3) { width: 120px; } /* Recursos */
-    th:nth-child(4), td:nth-child(4) { width: 90px; }  /* Inactivo */
+    th:nth-child(2), td:nth-child(2) { width: 180px; }
+    th:nth-child(3), td:nth-child(3) { width: 120px; }
+    th:nth-child(4), td:nth-child(4) { width: 90px; }
 
     .inactivo-si {
       color: #9ca3af;
@@ -109,7 +108,7 @@
 <body>
 
   <header>
-    AstroTools – TOP 400
+    AstroTools – Estadísticas de recursos
   </header>
 
   <nav>
@@ -118,10 +117,12 @@
   </nav>
 
   <main>
-    <h1>Tabla TOP 400</h1>
-    <p>Datos generados automáticamente por el script de escaneo.</p>
+    <h1>Estadísticas de recursos</h1>
 
-    <p id="fechaCSV" style="margin-top:10px; color:#94a3b8;"></p>
+    <!-- 🔥 FECHA MANUAL (EDITA AQUÍ) -->
+    <p id="fechaCSV" style="margin-top:10px; color:#94a3b8;">
+      Última actualización del CSV: <b>23:34</b>
+    </p>
 
     <div id="estado">Cargando datos…</div>
 
@@ -198,36 +199,6 @@
       });
     }
 
-    async function mostrarFechaCSV() {
-      const fechaElem = document.getElementById("fechaCSV");
-
-      try {
-        const resp = await fetch('data/jugadores_top400_inactividad.csv?' + Date.now(), {
-          method: 'HEAD'
-        });
-
-        const mod = resp.headers.get("Last-Modified");
-
-        if (mod) {
-          const fecha = new Date(mod);
-          const opciones = {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-          };
-
-          fechaElem.textContent = "Última actualización del CSV: " + fecha.toLocaleString("es-ES", opciones);
-        } else {
-          fechaElem.textContent = "No se pudo obtener la fecha del archivo.";
-        }
-
-      } catch (e) {
-        fechaElem.textContent = "Error obteniendo la fecha del CSV.";
-      }
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
       const thInactivo = document.querySelector("th:nth-child(4)");
       const thRecursos = document.querySelector("th:nth-child(3)");
@@ -259,7 +230,6 @@
     });
 
     cargarCSV();
-    mostrarFechaCSV();
   </script>
 
 </body>
