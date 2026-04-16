@@ -77,6 +77,14 @@
       background: #1e2a44;
     }
 
+    /* Columna Jugador más estrecha */
+    td:nth-child(2), th:nth-child(2) {
+      max-width: 160px;
+      width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .inactivo-si {
       color: #9ca3af;
       font-weight: bold;
@@ -120,7 +128,7 @@
       <thead>
         <tr>
           <th>#</th>
-          <th>Nombre</th>
+          <th>Jugador</th>
           <th>Recursos</th>
           <th>Inactivo</th>
         </tr>
@@ -136,11 +144,11 @@
   <script>
     let datosGlobales = [];
     let ordenInactivoAsc = true;
+    let ordenRecursosAsc = false;
 
     async function cargarCSV() {
       const estado = document.getElementById('estado');
       const tabla = document.getElementById('tabla');
-      const tbody = tabla.querySelector('tbody');
 
       try {
         const resp = await fetch('data/jugadores_top400_inactividad.csv?' + Date.now());
@@ -174,7 +182,7 @@
       tbody.innerHTML = "";
 
       datos.forEach((j, i) => {
-        const clase = j.inactivo.toLowerCase() === 'sí' || j.inactivo.toLowerCase() === 'si'
+        const clase = j.inactivo.toLowerCase().startsWith("s")
           ? 'inactivo-si'
           : 'inactivo-no';
 
@@ -221,6 +229,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const thInactivo = document.querySelector("th:nth-child(4)");
+      const thRecursos = document.querySelector("th:nth-child(3)");
 
       thInactivo.addEventListener("click", () => {
         datosGlobales.sort((a, b) => {
@@ -233,6 +242,17 @@
         });
 
         ordenInactivoAsc = !ordenInactivoAsc;
+        renderTabla(datosGlobales);
+      });
+
+      thRecursos.addEventListener("click", () => {
+        datosGlobales.sort((a, b) => {
+          return ordenRecursosAsc
+            ? a.recursos - b.recursos
+            : b.recursos - a.recursos;
+        });
+
+        ordenRecursosAsc = !ordenRecursosAsc;
         renderTabla(datosGlobales);
       });
     });
