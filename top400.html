@@ -25,12 +25,13 @@
       background: #0f172a;
       padding: 10px 20px;
       border-bottom: 1px solid #1e293b;
+      text-align: center;
     }
 
     nav a {
       color: #38bdf8;
       text-decoration: none;
-      margin-right: 20px;
+      margin: 0 10px;
       font-size: 16px;
     }
 
@@ -38,9 +39,10 @@
       text-decoration: underline;
     }
 
+    /* 🔥 TABLA MUY ESTRECHA */
     main {
       padding: 20px;
-      max-width: 900px;
+      max-width: 600px; /* ANCHO TOTAL REDUCIDO */
       margin: auto;
     }
 
@@ -55,7 +57,7 @@
 
     th, td {
       border: 1px solid #1e293b;
-      padding: 4px 6px;
+      padding: 4px 4px;
       text-align: left;
       white-space: nowrap;
       overflow: hidden;
@@ -80,10 +82,11 @@
       background: #1e2a44;
     }
 
-    th:nth-child(1), td:nth-child(1) { width: 40px; }
-    th:nth-child(2), td:nth-child(2) { width: 180px; }
-    th:nth-child(3), td:nth-child(3) { width: 120px; }
-    th:nth-child(4), td:nth-child(4) { width: 90px; }
+    /* 🔥 COLUMNAS AÚN MÁS ESTRECHAS */
+    th:nth-child(1), td:nth-child(1) { width: 35px; }
+    th:nth-child(2), td:nth-child(2) { width: 150px; }
+    th:nth-child(3), td:nth-child(3) { width: 110px; }
+    th:nth-child(4), td:nth-child(4) { width: 70px; }
 
     .inactivo-si {
       color: #9ca3af;
