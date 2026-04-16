@@ -49,33 +49,41 @@
       width: 100%;
       margin-top: 20px;
       font-size: 14px;
+      background: #0b1220;
     }
 
     th, td {
       border: 1px solid #1e293b;
-      padding: 6px 8px;
+      padding: 4px 6px;
       text-align: left;
+      white-space: nowrap;
+      cursor: default;
     }
 
     th {
       background: #1e293b;
+      color: #f1f5f9;
       position: sticky;
       top: 0;
       z-index: 2;
+      cursor: pointer;
     }
 
     tr:nth-child(even) {
-      background: #162033;
+      background: #111a2e;
     }
 
-    /* Inactivos en gris */
+    tr:hover {
+      background: #1e2a44;
+    }
+
     .inactivo-si {
-      color: #6b7280;
+      color: #9ca3af;
       font-weight: bold;
     }
 
     .inactivo-no {
-      color: #e2e8f0;
+      color: #f8fafc;
     }
 
     footer {
@@ -104,7 +112,6 @@
     <h1>Tabla TOP 400</h1>
     <p>Datos generados automáticamente por el script de escaneo.</p>
 
-    <!-- Fecha de actualización -->
     <p id="fechaCSV" style="margin-top:10px; color:#94a3b8;"></p>
 
     <div id="estado">Cargando datos…</div>
@@ -127,6 +134,9 @@
   </footer>
 
   <script>
+    let datosGlobales = [];
+    let ordenInactivoAsc = true;
+
     async function cargarCSV() {
       const estado = document.getElementById('estado');
       const tabla = document.getElementById('tabla');
@@ -148,21 +158,8 @@
 
         datos.sort((a, b) => b.recursos - a.recursos);
 
-        tbody.innerHTML = '';
-        datos.forEach((j, i) => {
-          const clase = j.inactivo.toLowerCase() === 'sí' || j.inactivo.toLowerCase() === 'si'
-            ? 'inactivo-si'
-            : 'inactivo-no';
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${i + 1}</td>
-            <td class="${clase}">${j.nombre}</td>
-            <td class="${clase}">${j.recursos.toLocaleString('es-ES')}</td>
-            <td class="${clase}">${j.inactivo}</td>
-          `;
-          tbody.appendChild(tr);
-        });
+        datosGlobales = datos;
+        renderTabla(datos);
 
         estado.style.display = 'none';
         tabla.style.display = 'table';
@@ -170,6 +167,26 @@
       } catch (e) {
         estado.textContent = 'Error cargando el CSV: ' + e;
       }
+    }
+
+    function renderTabla(datos) {
+      const tbody = document.querySelector("#tabla tbody");
+      tbody.innerHTML = "";
+
+      datos.forEach((j, i) => {
+        const clase = j.inactivo.toLowerCase() === 'sí' || j.inactivo.toLowerCase() === 'si'
+          ? 'inactivo-si'
+          : 'inactivo-no';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td class="${clase}">${j.nombre}</td>
+          <td class="${clase}">${j.recursos.toLocaleString('es-ES')}</td>
+          <td class="${clase}">${j.inactivo}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     async function mostrarFechaCSV() {
@@ -201,6 +218,24 @@
         fechaElem.textContent = "Error obteniendo la fecha del CSV.";
       }
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const thInactivo = document.querySelector("th:nth-child(4)");
+
+      thInactivo.addEventListener("click", () => {
+        datosGlobales.sort((a, b) => {
+          const ia = a.inactivo.toLowerCase().startsWith("s") ? 1 : 0;
+          const ib = b.inactivo.toLowerCase().startsWith("s") ? 1 : 0;
+
+          if (ia !== ib) return ordenInactivoAsc ? ib - ia : ia - ib;
+
+          return b.recursos - a.recursos;
+        });
+
+        ordenInactivoAsc = !ordenInactivoAsc;
+        renderTabla(datosGlobales);
+      });
+    });
 
     cargarCSV();
     mostrarFechaCSV();
