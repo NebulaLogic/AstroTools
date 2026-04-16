@@ -68,9 +68,9 @@
       background: #162033;
     }
 
-    /* 🔥 NUEVO: estilo para inactivos */
+    /* Inactivos en gris */
     .inactivo-si {
-      color: #6b7280; /* gris */
+      color: #6b7280;
       font-weight: bold;
     }
 
@@ -103,6 +103,9 @@
   <main>
     <h1>Tabla TOP 400</h1>
     <p>Datos generados automáticamente por el script de escaneo.</p>
+
+    <!-- Fecha de actualización -->
+    <p id="fechaCSV" style="margin-top:10px; color:#94a3b8;"></p>
 
     <div id="estado">Cargando datos…</div>
 
@@ -169,7 +172,38 @@
       }
     }
 
+    async function mostrarFechaCSV() {
+      const fechaElem = document.getElementById("fechaCSV");
+
+      try {
+        const resp = await fetch('data/jugadores_top400_inactividad.csv?' + Date.now(), {
+          method: 'HEAD'
+        });
+
+        const mod = resp.headers.get("Last-Modified");
+
+        if (mod) {
+          const fecha = new Date(mod);
+          const opciones = {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+          };
+
+          fechaElem.textContent = "Última actualización del CSV: " + fecha.toLocaleString("es-ES", opciones);
+        } else {
+          fechaElem.textContent = "No se pudo obtener la fecha del archivo.";
+        }
+
+      } catch (e) {
+        fechaElem.textContent = "Error obteniendo la fecha del CSV.";
+      }
+    }
+
     cargarCSV();
+    mostrarFechaCSV();
   </script>
 
 </body>
