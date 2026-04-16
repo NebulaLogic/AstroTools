@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Astrogame – TOP 400</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { margin-top: 0; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #1e293b;
+      padding: 6px 8px;
+    }
+    th {
+      background: #1e293b;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    tr:nth-child(even) { background: #162033; }
+    .inactivo-si { color: #22c55e; font-weight: bold; }
+    .inactivo-no { color: #f97316; }
+    #estado { margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>Astrogame – TOP 400</h1>
+  <p>Datos generados automáticamente por el script de escaneo.</p>
+
+  <div id="estado">Cargando datos…</div>
+
+  <table id="tabla" style="display:none;">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>Recursos</th>
+        <th>Inactivo</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function cargarCSV() {
+      const estado = document.getElementById('estado');
+      const tabla = document.getElementById('tabla');
+      const tbody = tabla.querySelector('tbody');
+
+      try {
+        const resp = await fetch('data/jugadores_top400_inactividad.csv?' + Date.now());
+        const texto = await resp.text();
+
+        const lineas = texto.trim().split('\n');
+        const datos = lineas.slice(1).map(l => {
+          const partes = l.split(',');
+          return {
+            nombre: partes[0],
+            recursos: Number(partes[1] || 0),
+            inactivo: (partes[2] || '').trim()
+          };
+        });
+
+        datos.sort((a, b) => b.recursos - a.recursos);
+
+        tbody.innerHTML = '';
+        datos.forEach((j, i) => {
+          const tr = document.createElement('tr');
+
+          tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${j.nombre}</td>
+            <td>${j.recursos.toLocaleString('es-ES')}</td>
+            <td class="${j.inactivo === 'Sí' ? 'inactivo-si' : 'inactivo-no'}">${j.inactivo}</td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+
+        estado.style.display = 'none';
+        tabla.style.display = 'table';
+
+      } catch (e) {
+        estado.textContent = 'Error cargando el CSV: ' + e;
+      }
+    }
+
+    cargarCSV();
+  </script>
+
+</body>
+</html>
