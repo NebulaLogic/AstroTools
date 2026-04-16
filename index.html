@@ -2,19 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>AstroTools – Estadísticas de recursos</title>
+  <title>AstroTools – Inicio</title>
   <style>
     body {
       margin: 0;
       font-family: system-ui, sans-serif;
 
-      /* 🔥 FONDO LOCAL SUBIDO POR TI */
+      /* Fondo igual que top400 */
       background-image: url('img/bg_rampage.webp');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
-
-      /* 🔥 OSCURECER PARA QUE SE LEA BIEN */
       background-color: rgba(0,0,0,0.6);
       background-blend-mode: darken;
 
@@ -25,93 +23,42 @@
       background: rgba(30,41,59,0.85);
       padding: 20px;
       text-align: center;
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
       color: #fff;
       border-bottom: 2px solid #334155;
       backdrop-filter: blur(4px);
     }
 
-    nav {
-      background: rgba(15,23,42,0.85);
-      padding: 10px 20px;
-      border-bottom: 1px solid #1e293b;
-      text-align: center;
-      backdrop-filter: blur(4px);
-    }
-
-    nav a {
-      color: #38bdf8;
-      text-decoration: none;
-      margin: 0 10px;
-      font-size: 16px;
-    }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    /* 🔥 TABLA MUY ESTRECHA */
     main {
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
+      max-width: 700px;
+      margin: 40px auto;
       background: rgba(15,23,42,0.75);
-      border-radius: 10px;
+      padding: 30px;
+      border-radius: 12px;
       backdrop-filter: blur(6px);
     }
 
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-      font-size: 14px;
-      background: rgba(11,18,32,0.85);
-      table-layout: fixed;
-      border-radius: 6px;
-      overflow: hidden;
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
     }
 
-    th, td {
-      border: 1px solid #1e293b;
-      padding: 4px 4px;
-      text-align: left;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      cursor: default;
+    a.boton {
+      display: block;
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 14px;
+      text-align: center;
+      margin: 12px 0;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 18px;
+      border: 1px solid #334155;
     }
 
-    th {
-      background: rgba(30,41,59,0.9);
-      color: #f1f5f9;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      cursor: pointer;
-    }
-
-    tr:nth-child(even) {
-      background: rgba(17,26,46,0.85);
-    }
-
-    tr:hover {
-      background: rgba(30,42,68,0.9);
-    }
-
-    /* 🔥 COLUMNAS ESTRECHAS */
-    th:nth-child(1), td:nth-child(1) { width: 35px; }
-    th:nth-child(2), td:nth-child(2) { width: 150px; }
-    th:nth-child(3), td:nth-child(3) { width: 110px; }
-    th:nth-child(4), td:nth-child(4) { width: 70px; }
-
-    .inactivo-si {
-      color: #9ca3af;
-      font-weight: bold;
-    }
-
-    .inactivo-no {
-      color: #f8fafc;
+    a.boton:hover {
+      background: #273449;
     }
 
     footer {
@@ -129,129 +76,19 @@
 <body>
 
   <header>
-    AstroTools – Estadísticas de recursos
+    AstroTools – Panel principal
   </header>
 
-  <nav>
-    <a href="index.html">Inicio</a>
-    <a href="data/jugadores_top400_inactividad.csv">Descargar CSV</a>
-  </nav>
-
   <main>
-    <h1>Estadísticas de recursos</h1>
+    <h1>Herramientas disponibles</h1>
 
-    <!-- 🔥 FECHA MANUAL EXACTA -->
-    <p id="fechaCSV" style="margin-top:10px; color:#94a3b8;">
-      Última actualización del CSV: <b>16 de abril a las 23:34</b>
-    </p>
-
-    <div id="estado">Cargando datos…</div>
-
-    <table id="tabla" style="display:none;">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Jugador</th>
-          <th>Recursos</th>
-          <th>Inactivo</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <a class="boton" href="top400.html">📊 Estadísticas de recursos (TOP 400)</a>
+    <a class="boton" href="data/jugadores_top400_inactividad.csv">📥 Descargar CSV</a>
   </main>
 
   <footer>
     AstroTools © 2026 – NebulaLogic
   </footer>
-
-  <script>
-    let datosGlobales = [];
-    let ordenInactivoAsc = true;
-    let ordenRecursosAsc = false;
-
-    async function cargarCSV() {
-      const estado = document.getElementById('estado');
-      const tabla = document.getElementById('tabla');
-
-      try {
-        const resp = await fetch('data/jugadores_top400_inactividad.csv?' + Date.now());
-        const texto = await resp.text();
-
-        const lineas = texto.trim().split('\n');
-        const datos = lineas.slice(1).map(l => {
-          const partes = l.split(',');
-          return {
-            nombre: partes[0],
-            recursos: Number(partes[1] || 0),
-            inactivo: (partes[2] || '').trim()
-          };
-        });
-
-        datos.sort((a, b) => b.recursos - a.recursos);
-
-        datosGlobales = datos;
-        renderTabla(datos);
-
-        estado.style.display = 'none';
-        tabla.style.display = 'table';
-
-      } catch (e) {
-        estado.textContent = 'Error cargando el CSV: ' + e;
-      }
-    }
-
-    function renderTabla(datos) {
-      const tbody = document.querySelector("#tabla tbody");
-      tbody.innerHTML = "";
-
-      datos.forEach((j, i) => {
-        const clase = j.inactivo.toLowerCase().startsWith("s")
-          ? 'inactivo-si'
-          : 'inactivo-no';
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${i + 1}</td>
-          <td class="${clase}">${j.nombre}</td>
-          <td class="${clase}">${j.recursos.toLocaleString('es-ES')}</td>
-          <td class="${clase}">${j.inactivo}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const thInactivo = document.querySelector("th:nth-child(4)");
-      const thRecursos = document.querySelector("th:nth-child(3)");
-
-      thInactivo.addEventListener("click", () => {
-        datosGlobales.sort((a, b) => {
-          const ia = a.inactivo.toLowerCase().startsWith("s") ? 1 : 0;
-          const ib = b.inactivo.toLowerCase().startsWith("s") ? 1 : 0;
-
-          if (ia !== ib) return ordenInactivoAsc ? ib - ia : ia - ib;
-
-          return b.recursos - a.recursos;
-        });
-
-        ordenInactivoAsc = !ordenInactivoAsc;
-        renderTabla(datosGlobales);
-      });
-
-      thRecursos.addEventListener("click", () => {
-        datosGlobales.sort((a, b) => {
-          return ordenRecursosAsc
-            ? a.recursos - b.recursos
-            : b.recursos - a.recursos;
-        });
-
-        ordenRecursosAsc = !ordenRecursosAsc;
-        renderTabla(datosGlobales);
-      });
-    });
-
-    cargarCSV();
-  </script>
 
 </body>
 </html>
