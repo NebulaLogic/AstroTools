@@ -44,10 +44,6 @@
       margin: auto;
     }
 
-    h1 {
-      margin-top: 0;
-    }
-
     table {
       border-collapse: collapse;
       width: 100%;
@@ -72,17 +68,14 @@
       background: #162033;
     }
 
+    /* 🔥 NUEVO: estilo para inactivos */
     .inactivo-si {
-      color: #22c55e;
+      color: #6b7280; /* gris */
       font-weight: bold;
     }
 
     .inactivo-no {
-      color: #f97316;
-    }
-
-    #estado {
-      margin-top: 10px;
+      color: #e2e8f0;
     }
 
     footer {
@@ -154,15 +147,17 @@
 
         tbody.innerHTML = '';
         datos.forEach((j, i) => {
-          const tr = document.createElement('tr');
+          const clase = j.inactivo.toLowerCase() === 'sí' || j.inactivo.toLowerCase() === 'si'
+            ? 'inactivo-si'
+            : 'inactivo-no';
 
+          const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${i + 1}</td>
-            <td>${j.nombre}</td>
-            <td>${j.recursos.toLocaleString('es-ES')}</td>
-            <td class="${j.inactivo === 'Sí' ? 'inactivo-si' : 'inactivo-no'}">${j.inactivo}</td>
+            <td class="${clase}">${j.nombre}</td>
+            <td class="${clase}">${j.recursos.toLocaleString('es-ES')}</td>
+            <td class="${clase}">${j.inactivo}</td>
           `;
-
           tbody.appendChild(tr);
         });
 
