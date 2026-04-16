@@ -7,25 +7,37 @@
     body {
       margin: 0;
       font-family: system-ui, sans-serif;
-      background: #0f172a;
+
+      /* 🔥 FONDO LOCAL SUBIDO POR TI */
+      background-image: url('img/bg_rampage.webp');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+
+      /* 🔥 OSCURECER PARA QUE SE LEA BIEN */
+      background-color: rgba(0,0,0,0.6);
+      background-blend-mode: darken;
+
       color: #e2e8f0;
     }
 
     header {
-      background: #1e293b;
+      background: rgba(30,41,59,0.85);
       padding: 20px;
       text-align: center;
       font-size: 24px;
       font-weight: bold;
       color: #fff;
       border-bottom: 2px solid #334155;
+      backdrop-filter: blur(4px);
     }
 
     nav {
-      background: #0f172a;
+      background: rgba(15,23,42,0.85);
       padding: 10px 20px;
       border-bottom: 1px solid #1e293b;
       text-align: center;
+      backdrop-filter: blur(4px);
     }
 
     nav a {
@@ -42,8 +54,11 @@
     /* 🔥 TABLA MUY ESTRECHA */
     main {
       padding: 20px;
-      max-width: 600px; /* ANCHO TOTAL REDUCIDO */
+      max-width: 600px;
       margin: auto;
+      background: rgba(15,23,42,0.75);
+      border-radius: 10px;
+      backdrop-filter: blur(6px);
     }
 
     table {
@@ -51,8 +66,10 @@
       width: 100%;
       margin-top: 20px;
       font-size: 14px;
-      background: #0b1220;
+      background: rgba(11,18,32,0.85);
       table-layout: fixed;
+      border-radius: 6px;
+      overflow: hidden;
     }
 
     th, td {
@@ -66,7 +83,7 @@
     }
 
     th {
-      background: #1e293b;
+      background: rgba(30,41,59,0.9);
       color: #f1f5f9;
       position: sticky;
       top: 0;
@@ -75,14 +92,14 @@
     }
 
     tr:nth-child(even) {
-      background: #111a2e;
+      background: rgba(17,26,46,0.85);
     }
 
     tr:hover {
-      background: #1e2a44;
+      background: rgba(30,42,68,0.9);
     }
 
-    /* 🔥 COLUMNAS AÚN MÁS ESTRECHAS */
+    /* 🔥 COLUMNAS ESTRECHAS */
     th:nth-child(1), td:nth-child(1) { width: 35px; }
     th:nth-child(2), td:nth-child(2) { width: 150px; }
     th:nth-child(3), td:nth-child(3) { width: 110px; }
@@ -99,12 +116,13 @@
 
     footer {
       margin-top: 40px;
-      background: #1e293b;
+      background: rgba(30,41,59,0.85);
       padding: 15px;
       text-align: center;
       color: #94a3b8;
       font-size: 14px;
       border-top: 2px solid #334155;
+      backdrop-filter: blur(4px);
     }
   </style>
 </head>
@@ -122,9 +140,9 @@
   <main>
     <h1>Estadísticas de recursos</h1>
 
-    <!-- 🔥 FECHA MANUAL (EDITA AQUÍ) -->
+    <!-- 🔥 FECHA MANUAL EXACTA -->
     <p id="fechaCSV" style="margin-top:10px; color:#94a3b8;">
-      Última actualización del CSV: <b>16 de abril 23:34</b>
+      Última actualización del CSV: <b>16 de abril a las 23:34</b>
     </p>
 
     <div id="estado">Cargando datos…</div>
