@@ -8,13 +8,10 @@
       margin: 0;
       font-family: system-ui, sans-serif;
 
-      /* 🔥 FONDO LOCAL SUBIDO POR TI */
       background-image: url('img/bg_rampage.webp');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
-
-      /* 🔥 OSCURECER PARA QUE SE LEA BIEN */
       background-color: rgba(0,0,0,0.6);
       background-blend-mode: darken;
 
@@ -51,7 +48,6 @@
       text-decoration: underline;
     }
 
-    /* 🔥 TABLA MUY ESTRECHA */
     main {
       padding: 20px;
       max-width: 600px;
@@ -99,7 +95,6 @@
       background: rgba(30,42,68,0.9);
     }
 
-    /* 🔥 COLUMNAS ESTRECHAS */
     th:nth-child(1), td:nth-child(1) { width: 35px; }
     th:nth-child(2), td:nth-child(2) { width: 150px; }
     th:nth-child(3), td:nth-child(3) { width: 110px; }
@@ -140,9 +135,9 @@
   <main>
     <h1>Estadísticas de recursos</h1>
 
-    <!-- 🔥 FECHA MANUAL EXACTA -->
+    <!-- FECHA AUTOMÁTICA -->
     <p id="fechaCSV" style="margin-top:10px; color:#94a3b8;">
-      Última actualización del CSV: <b>16 de abril a las 23:34</b>
+      Cargando fecha de actualización…
     </p>
 
     <div id="estado">Cargando datos…</div>
@@ -169,6 +164,38 @@
     let ordenInactivoAsc = true;
     let ordenRecursosAsc = false;
 
+    // -------------------------
+    // FECHA AUTOMÁTICA DESDE GITHUB
+    // -------------------------
+    async function mostrarFechaActualizacion() {
+      const fechaElem = document.getElementById("fechaCSV");
+
+      try {
+        const resp = await fetch("https://api.github.com/repos/NebulaLogic/AstroTools/contents/data/jugadores_top400_inactividad.csv");
+        const data = await resp.json();
+
+        const fecha = new Date(data.last_modified);
+
+        const opciones = {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        };
+
+        fechaElem.textContent =
+          "Última actualización del CSV: " +
+          fecha.toLocaleString("es-ES", opciones);
+
+      } catch (e) {
+        fechaElem.textContent = "No se pudo obtener la fecha de actualización.";
+      }
+    }
+
+    // -------------------------
+    // CARGAR CSV
+    // -------------------------
     async function cargarCSV() {
       const estado = document.getElementById('estado');
       const tabla = document.getElementById('tabla');
@@ -250,6 +277,8 @@
       });
     });
 
+    // Ejecutar fecha + carga de datos
+    mostrarFechaActualizacion();
     cargarCSV();
   </script>
 
