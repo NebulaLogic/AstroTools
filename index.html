@@ -7,15 +7,12 @@
     body {
       margin: 0;
       font-family: system-ui, sans-serif;
-
-      /* Fondo igual que top400 */
       background-image: url('img/bg_rampage.webp');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
       background-color: rgba(0,0,0,0.6);
       background-blend-mode: darken;
-
       color: #e2e8f0;
     }
 
@@ -28,6 +25,30 @@
       color: #fff;
       border-bottom: 2px solid #334155;
       backdrop-filter: blur(4px);
+    }
+
+    nav {
+      background: rgba(15,23,42,0.85);
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      border-bottom: 2px solid #334155;
+      backdrop-filter: blur(4px);
+    }
+
+    nav a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 17px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+    }
+
+    nav a:hover {
+      background: #1e293b;
+      border-color: #334155;
     }
 
     main {
@@ -75,15 +96,22 @@
 </head>
 <body>
 
-  <header>
-    AstroTools – Panel principal
-  </header>
+  <header>AstroTools – Panel principal</header>
+
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="top400.html">TOP 400</a>
+    <a href="data/coordenadas/universo_6x400_ajaxsync.csv">CSV Coordenadas</a>
+    <a href="herramientas/coordenadas.html">Visor de Coordenadas</a>
+  </nav>
 
   <main>
     <h1>Herramientas disponibles</h1>
 
     <a class="boton" href="top400.html">📊 Estadísticas de recursos (TOP 400)</a>
-    <a class="boton" href="data/jugadores_top400_inactividad.csv">📥 Descargar CSV</a>
+    <a class="boton" href="herramientas/coordenadas.html">🛰️ Visor de Coordenadas</a>
+    <a class="boton" href="data/jugadores_top400_inactividad.csv">📥 Descargar CSV TOP 400</a>
+    <a class="boton" href="data/coordenadas/universo_6x400_ajaxsync.csv">📥 Descargar CSV Coordenadas</a>
   </main>
 
   <footer>
