@@ -1,137 +1,252 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>AstroTools – Coordenadas</title>
-  <style>
-    body { font-family: system-ui, sans-serif; background:#0b0c10; color:#eee; margin:0; padding:20px; }
-    h1 { margin-top:0; }
-    .controls { margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap; }
-    input[type="text"] { padding:6px 8px; border-radius:4px; border:1px solid #444; background:#111; color:#eee; }
-    table { border-collapse:collapse; width:100%; font-size:14px; }
-    th, td { border:1px solid #333; padding:4px 6px; text-align:left; }
-    th { background:#15171f; cursor:pointer; position:sticky; top:0; z-index:1; }
-    tr:nth-child(even) { background:#11141c; }
-    tr:nth-child(odd) { background:#0c0f17; }
-    tr.hide { display:none; }
-    .small { font-size:12px; color:#aaa; }
-  </style>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Exo+2:wght@300;500;700&display=swap');
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#070a12; --surface2:#111827; --border:#1e2d47;
+    --accent:#38bdf8; --accent2:#818cf8; --text:#e2e8f0;
+    --muted:#64748b; --row-even:#0a0e1a; --row-odd:#0d1120;
+    --col-hl:rgba(56,189,248,0.10); --col-hl-hd:rgba(56,189,248,0.22);
+  }
+  body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:20px; }
+  .app { max-width:100%; margin:0 auto; }
+  header { border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:14px; display:flex; align-items:flex-end; gap:16px; }
+  .logo { font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:var(--accent); }
+  .logo span { color:var(--accent2); }
+  .subtitle { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; }
+
+  .controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+  .search-wrap { position:relative; min-width:220px; max-width:340px; flex:1; }
+  .search-wrap svg { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; }
+  #search { width:100%; padding:8px 12px 8px 34px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-family:'Exo 2',sans-serif; font-size:14px; outline:none; transition:border-color .2s; }
+  #search:focus { border-color:var(--accent); }
+  .hint { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; }
+  .hint kbd { background:var(--surface2); border:1px solid var(--border); border-radius:3px; padding:1px 5px; font-size:10px; color:var(--accent); }
+  #status { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; margin-left:auto; }
+
+  .table-wrap { overflow:auto; max-height:76vh; border-radius:8px; border:1px solid var(--border); }
+
+  table { border-collapse:collapse; font-size:12px; font-family:'Space Mono',monospace; }
+
+  /* Cabecera = nombre del jugador */
+  thead th {
+    background:#0b0f1e; border:1px solid var(--border);
+    padding:8px 14px; text-align:left;
+    position:sticky; top:0; z-index:10;
+    white-space:nowrap; color:var(--accent);
+    font-size:12px; font-weight:700; font-family:'Exo 2',sans-serif;
+    cursor:pointer; user-select:none;
+    transition:background .15s;
+    min-width:140px;
+  }
+  thead th:hover { background:var(--surface2); }
+  thead th.col-active { background:var(--col-hl-hd); outline:1px solid var(--accent); outline-offset:-1px; }
+
+  /* Celdas de coordenadas */
+  tbody td {
+    border:1px solid var(--border);
+    padding:5px 14px; color:var(--accent2);
+    vertical-align:top; white-space:nowrap;
+  }
+  tbody tr:nth-child(even) td { background:var(--row-even); }
+  tbody tr:nth-child(odd)  td { background:var(--row-odd); }
+  tbody td.empty { color:var(--border); }
+
+  /* Columna resaltada */
+  thead th.col-active,
+  tbody td.col-active { background:var(--col-hl) !important; }
+  thead th.col-active { background:var(--col-hl-hd) !important; }
+
+  /* Columna oculta por filtro */
+  .col-hidden { display:none; }
+
+  #toast {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(16px);
+    background:var(--accent); color:#07111f; font-family:'Space Mono',monospace;
+    font-size:12px; font-weight:700; padding:8px 20px; border-radius:30px;
+    opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; z-index:999;
+  }
+  #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
 </head>
 <body>
-  <h1>Coordenadas escaneadas – AstroTools</h1>
-  <div class="small">
-    Fuente CSV: <code>data/coordenadas/universo.csv</code>
-  </div>
+<div class="app">
+  <header>
+    <div>
+      <div class="logo">Astro<span>Tools</span></div>
+      <div class="subtitle">data/coordenadas/universo.csv</div>
+    </div>
+  </header>
 
   <div class="controls">
-    <input id="search" type="text" placeholder="Buscar jugador o coordenada…">
-    <span class="small" id="status">Cargando datos…</span>
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="search" type="text" placeholder="Buscar jugador o coordenada…" autocomplete="off">
+    </div>
+    <span class="hint">Clic en nombre → selecciona columna · <kbd>C</kbd> copia</span>
+    <span id="status">Cargando…</span>
   </div>
 
-  <div style="overflow:auto; max-height:80vh;">
+  <div class="table-wrap">
     <table id="tabla">
-      <thead id="thead"></thead>
+      <thead id="thead"><tr id="header-row"></tr></thead>
       <tbody id="tbody"></tbody>
     </table>
   </div>
+</div>
+<div id="toast"></div>
 
-  <script>
-    const CSV_URL = "https://nebulalogic.github.io/AstroTools/data/coordenadas/universo.csv";
+<script>
+const CSV_URL = "https://nebulalogic.github.io/AstroTools/data/coordenadas/universo.csv";
 
-    const thead = document.getElementById("thead");
-    const tbody = document.getElementById("tbody");
-    const searchInput = document.getElementById("search");
-    const statusSpan = document.getElementById("status");
+// players[i] = { name: string, coords: string[] }
+let players = [];
+let activeCol = -1;   // índice de columna seleccionada
+let filterQ = '';
 
-    let tableData = [];
-    let sortState = { col: 0, asc: true };
+// ── carga ─────────────────────────────────────────────────
+async function load() {
+  try {
+    const r = await fetch(CSV_URL + '?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    parse(await r.text());
+  } catch(e) {
+    document.getElementById('status').textContent = 'Error cargando CSV.';
+  }
+}
 
-    async function loadCSV() {
-      try {
-        const resp = await fetch(CSV_URL + "?t=" + Date.now());
-        if (!resp.ok) throw new Error("HTTP " + resp.status);
-        const text = await resp.text();
-        parseCSV(text);
-        statusSpan.textContent = "Datos cargados (" + tableData.length + " filas).";
-      } catch (e) {
-        console.error(e);
-        statusSpan.textContent = "Error cargando CSV.";
-      }
+function parse(text) {
+  // Cada línea es una "fila" del CSV original.
+  // Línea 0: nombres de jugadores (una columna por jugador)
+  // Líneas 1..N: coordenadas en la misma posición de columna
+  const lines = text.trim().split(/\r?\n/).map(l => l.split(';'));
+  const names = lines[0];
+  const numCols = names.length;
+
+  players = names.map((name, col) => {
+    const coords = [];
+    for (let row = 1; row < lines.length; row++) {
+      const val = (lines[row][col] || '').trim();
+      if (val) coords.push(val);
     }
+    return { name: name.trim(), coords };
+  });
 
-    function parseCSV(text) {
-      const lines = text.trim().split(/\r?\n/);
-      if (lines.length === 0) return;
+  buildTable();
+  applyFilter();
+}
 
-      const headers = lines[0].split(";");
-      const rows = lines.slice(1).map(line => line.split(";"));
+// ── construir tabla ───────────────────────────────────────
+function buildTable() {
+  const headerRow = document.getElementById('header-row');
+  const tbody = document.getElementById('tbody');
+  headerRow.innerHTML = '';
+  tbody.innerHTML = '';
 
-      tableData = rows;
+  // Máximo de coordenadas entre todos los jugadores
+  const maxCoords = Math.max(...players.map(p => p.coords.length), 0);
 
-      renderHeader(headers);
-      renderBody(tableData);
+  // Cabeceras (nombres)
+  players.forEach((p, col) => {
+    const th = document.createElement('th');
+    th.textContent = p.name;
+    th.dataset.col = col;
+    th.addEventListener('click', () => selectCol(col));
+    headerRow.appendChild(th);
+  });
+
+  // Filas de coordenadas
+  for (let row = 0; row < maxCoords; row++) {
+    const tr = document.createElement('tr');
+    players.forEach((p, col) => {
+      const td = document.createElement('td');
+      const val = p.coords[row] || '';
+      td.textContent = val || '—';
+      if (!val) td.classList.add('empty');
+      td.dataset.col = col;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  }
+}
+
+// ── selección de columna ──────────────────────────────────
+function selectCol(col) {
+  activeCol = col;
+
+  // Limpiar resalte previo
+  document.querySelectorAll('.col-active').forEach(el => el.classList.remove('col-active'));
+
+  // Resaltar cabecera y todas las celdas de esa columna
+  document.querySelectorAll(`[data-col="${col}"]`).forEach(el => el.classList.add('col-active'));
+}
+
+// ── filtro ────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', function() {
+  filterQ = this.value.trim().toLowerCase();
+  applyFilter();
+});
+
+function applyFilter() {
+  const ths = document.querySelectorAll('#header-row th');
+  const tds_by_col = {};
+
+  // Agrupar celdas por columna
+  document.querySelectorAll('#tbody td').forEach(td => {
+    const col = td.dataset.col;
+    if (!tds_by_col[col]) tds_by_col[col] = [];
+    tds_by_col[col].push(td);
+  });
+
+  let visible = 0;
+  ths.forEach((th, col) => {
+    const p = players[col];
+    const match = !filterQ ||
+      p.name.toLowerCase().includes(filterQ) ||
+      p.coords.some(c => c.toLowerCase().includes(filterQ));
+
+    if (match) {
+      th.classList.remove('col-hidden');
+      (tds_by_col[col] || []).forEach(td => td.classList.remove('col-hidden'));
+      visible++;
+    } else {
+      th.classList.add('col-hidden');
+      (tds_by_col[col] || []).forEach(td => td.classList.add('col-hidden'));
     }
+  });
 
-    function renderHeader(headers) {
-      thead.innerHTML = "";
-      const tr = document.createElement("tr");
-      headers.forEach((h, idx) => {
-        const th = document.createElement("th");
-        th.textContent = h || ("Jugador " + (idx + 1));
-        th.addEventListener("click", () => sortByColumn(idx));
-        tr.appendChild(th);
-      });
-      thead.appendChild(tr);
-    }
+  document.getElementById('status').textContent =
+    filterQ ? visible + ' / ' + players.length + ' jugadores' : players.length + ' jugadores';
+}
 
-    function renderBody(data) {
-      tbody.innerHTML = "";
-      data.forEach(row => {
-        const tr = document.createElement("tr");
-        row.forEach(cell => {
-          const td = document.createElement("td");
-          td.textContent = cell;
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-      });
-      applyFilter();
-    }
+// ── copiar columna activa ─────────────────────────────────
+function copyActiveCol() {
+  if (activeCol < 0) { toast('Haz clic en un jugador primero'); return; }
+  const p = players[activeCol];
+  const text = p.name + '\n' + p.coords.join('\n');
+  navigator.clipboard.writeText(text)
+    .then(() => toast('✓ "' + p.name + '" copiado (' + p.coords.length + ' coords)'))
+    .catch(() => toast('Error al copiar'));
+}
 
-    function sortByColumn(colIndex) {
-      if (sortState.col === colIndex) {
-        sortState.asc = !sortState.asc;
-      } else {
-        sortState.col = colIndex;
-        sortState.asc = true;
-      }
-      tableData.sort((a, b) => {
-        const va = (a[colIndex] || "").toLowerCase();
-        const vb = (b[colIndex] || "").toLowerCase();
-        if (va < vb) return sortState.asc ? -1 : 1;
-        if (va > vb) return sortState.asc ? 1 : -1;
-        return 0;
-      });
-      renderBody(tableData);
-    }
+document.addEventListener('keydown', e => {
+  if (document.activeElement === document.getElementById('search')) return;
+  if (e.ctrlKey || e.metaKey) return;
+  if (e.key === 'c' || e.key === 'C') copyActiveCol();
+});
 
-    function applyFilter() {
-      const q = searchInput.value.trim().toLowerCase();
-      const rows = Array.from(tbody.querySelectorAll("tr"));
-      if (!q) {
-        rows.forEach(r => r.classList.remove("hide"));
-        return;
-      }
-      rows.forEach(r => {
-        const text = r.textContent.toLowerCase();
-        if (text.includes(q)) r.classList.remove("hide");
-        else r.classList.add("hide");
-      });
-    }
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2400);
+}
 
-    searchInput.addEventListener("input", applyFilter);
-
-    loadCSV();
-  </script>
+load();
+</script>
 </body>
 </html>
