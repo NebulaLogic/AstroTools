@@ -4,72 +4,76 @@
 <meta charset="UTF-8">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Exo+2:wght@300;500;700&display=swap');
-  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-  :root {
-    --bg:#070a12; --surface2:#111827; --border:#1e2d47;
-    --accent:#38bdf8; --accent2:#818cf8; --text:#e2e8f0;
-    --muted:#64748b; --row-even:#0a0e1a; --row-odd:#0d1120;
-    --col-hl:rgba(56,189,248,0.10); --col-hl-hd:rgba(56,189,248,0.22);
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#070a12;--surface2:#111827;--border:#1e2d47;
+    --accent:#38bdf8;--accent2:#818cf8;--text:#e2e8f0;
+    --muted:#64748b;--row-even:#0a0e1a;--row-odd:#0d1120;
+    --col-hl:rgba(56,189,248,0.10);--col-hl-hd:rgba(56,189,248,0.22);
+    --col-w:150px; --head-h:36px; --row-h:28px;
   }
-  body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:20px; }
-  .app { max-width:100%; margin:0 auto; }
-  header { border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:14px; display:flex; align-items:flex-end; gap:16px; }
-  .logo { font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:var(--accent); }
-  .logo span { color:var(--accent2); }
-  .subtitle { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; }
+  body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:28px 40px}
+  .app{max-width:1400px;margin:0 auto}
+  header{border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:16px;display:flex;align-items:center;gap:16px}
+  .logo{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--accent)}
+  .logo span{color:var(--accent2)}
+  .subtitle{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;margin-top:2px}
+  .back-btn{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);text-decoration:none;border:1px solid var(--border);background:var(--surface2);padding:6px 12px;border-radius:6px;transition:color .15s,border-color .15s,background .15s;white-space:nowrap}
+  .back-btn:hover{color:var(--accent);border-color:var(--accent);background:#0f1e30}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .search-wrap{position:relative;min-width:220px;max-width:340px;flex:1}
+  .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+  #search{width:100%;padding:8px 12px 8px 34px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+  #search:focus{border-color:var(--accent)}
+  .hint{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace}
+  .hint kbd{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;color:var(--accent)}
+  #status{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;margin-left:auto}
 
-  .controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
-  .search-wrap { position:relative; min-width:220px; max-width:340px; flex:1; }
-  .search-wrap svg { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; }
-  #search { width:100%; padding:8px 12px 8px 34px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-family:'Exo 2',sans-serif; font-size:14px; outline:none; transition:border-color .2s; }
-  #search:focus { border-color:var(--accent); }
-  .hint { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; }
-  .hint kbd { background:var(--surface2); border:1px solid var(--border); border-radius:3px; padding:1px 5px; font-size:10px; color:var(--accent); }
-  #status { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; margin-left:auto; }
-
-  .table-wrap { overflow:auto; max-height:76vh; border-radius:8px; border:1px solid var(--border); }
-
-  table { border-collapse:collapse; font-size:12px; font-family:'Space Mono',monospace; }
-
-  /* Cabecera = nombre del jugador */
-  thead th {
-    background:#0b0f1e; border:1px solid var(--border);
-    padding:8px 14px; text-align:left;
-    position:sticky; top:0; z-index:10;
-    white-space:nowrap; color:var(--accent);
-    font-size:12px; font-weight:700; font-family:'Exo 2',sans-serif;
-    cursor:pointer; user-select:none;
-    transition:background .15s;
-    min-width:140px;
-  }
-  thead th:hover { background:var(--surface2); }
-  thead th.col-active { background:var(--col-hl-hd); outline:1px solid var(--accent); outline-offset:-1px; }
-
-  /* Celdas de coordenadas */
-  tbody td {
+  /* ── Virtual scroll container ── */
+  .vscroll-outer{
+    overflow:auto;
+    max-height:76vh;
+    border-radius:8px;
     border:1px solid var(--border);
-    padding:5px 14px; color:var(--accent2);
-    vertical-align:top; white-space:nowrap;
+    position:relative;
   }
-  tbody tr:nth-child(even) td { background:var(--row-even); }
-  tbody tr:nth-child(odd)  td { background:var(--row-odd); }
-  tbody td.empty { color:var(--border); }
-
-  /* Columna resaltada */
-  thead th.col-active,
-  tbody td.col-active { background:var(--col-hl) !important; }
-  thead th.col-active { background:var(--col-hl-hd) !important; }
-
-  /* Columna oculta por filtro */
-  .col-hidden { display:none; }
-
-  #toast {
-    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(16px);
-    background:var(--accent); color:#07111f; font-family:'Space Mono',monospace;
-    font-size:12px; font-weight:700; padding:8px 20px; border-radius:30px;
-    opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; z-index:999;
+  /* tabla interna: solo cabecera sticky + filas reales */
+  .vtable{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    border-collapse:collapse;
+    /* ancho total = num cols visibles × col-w, gestionado por JS */
   }
-  #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  /* spacer izquierdo y derecho para simular columnas fuera de viewport */
+  .spacer-left,.spacer-right{border:none;padding:0;background:transparent}
+
+  thead th{
+    background:#0b0f1e;border:1px solid var(--border);
+    padding:0 14px;height:var(--head-h);text-align:left;
+    position:sticky;top:0;z-index:10;
+    white-space:nowrap;color:var(--accent);
+    font-size:12px;font-weight:700;font-family:'Exo 2',sans-serif;
+    cursor:pointer;user-select:none;
+    width:var(--col-w);min-width:var(--col-w);max-width:var(--col-w);
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  thead th:hover{background:var(--surface2)}
+  thead th.col-active{background:var(--col-hl-hd)!important;outline:1px solid var(--accent);outline-offset:-1px}
+
+  tbody td{
+    border:1px solid var(--border);
+    padding:0 14px;height:var(--row-h);
+    color:var(--accent2);vertical-align:middle;white-space:nowrap;
+    width:var(--col-w);min-width:var(--col-w);max-width:var(--col-w);
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  tbody tr:nth-child(even) td{background:var(--row-even)}
+  tbody tr:nth-child(odd)  td{background:var(--row-odd)}
+  tbody td.empty{color:#1e2d47}
+  tbody td.col-active{background:var(--col-hl)!important}
+
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--accent);color:#07111f;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:8px 20px;border-radius:30px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:999}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -79,6 +83,10 @@
       <div class="logo">Astro<span>Tools</span></div>
       <div class="subtitle">data/coordenadas/universo.csv</div>
     </div>
+    <a class="back-btn" href="https://nebulalogic.github.io/AstroTools/">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Inicio
+    </a>
   </header>
 
   <div class="controls">
@@ -86,13 +94,13 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input id="search" type="text" placeholder="Buscar jugador o coordenada…" autocomplete="off">
     </div>
-    <span class="hint">Clic en nombre → selecciona columna · <kbd>C</kbd> copia</span>
+    <span class="hint">Clic en nombre → selecciona · <kbd>C</kbd> copia columna</span>
     <span id="status">Cargando…</span>
   </div>
 
-  <div class="table-wrap">
-    <table id="tabla">
-      <thead id="thead"><tr id="header-row"></tr></thead>
+  <div class="vscroll-outer" id="outer">
+    <table class="vtable" id="vtable">
+      <thead><tr id="hrow"></tr></thead>
       <tbody id="tbody"></tbody>
     </table>
   </div>
@@ -102,10 +110,20 @@
 <script>
 const CSV_URL = "https://nebulalogic.github.io/AstroTools/data/coordenadas/universo.csv";
 
-// players[i] = { name: string, coords: string[] }
-let players = [];
-let activeCol = -1;   // índice de columna seleccionada
-let filterQ = '';
+const COL_W   = 150;   // px por columna
+const OVERSCAN = 5;    // columnas extra a cada lado del viewport
+
+let allPlayers  = [];  // [{name, coords[]}]  — datos completos
+let visPlayers  = [];  // subconjunto tras filtro
+let activeCol   = -1;  // índice en visPlayers
+let filterQ     = '';
+let maxCoords   = 0;
+
+let rendered    = { start:-1, end:-1 };  // rango de cols actualmente en el DOM
+
+const outer  = document.getElementById('outer');
+const hrow   = document.getElementById('hrow');
+const tbody  = document.getElementById('tbody');
 
 // ── carga ─────────────────────────────────────────────────
 async function load() {
@@ -119,117 +137,165 @@ async function load() {
 }
 
 function parse(text) {
-  // Cada línea es una "fila" del CSV original.
-  // Línea 0: nombres de jugadores (una columna por jugador)
-  // Líneas 1..N: coordenadas en la misma posición de columna
   const lines = text.trim().split(/\r?\n/).map(l => l.split(';'));
-  const names = lines[0];
-  const numCols = names.length;
-
-  players = names.map((name, col) => {
+  allPlayers = lines[0].map((name, col) => {
     const coords = [];
     for (let row = 1; row < lines.length; row++) {
-      const val = (lines[row][col] || '').trim();
-      if (val) coords.push(val);
+      const v = (lines[row][col] || '').trim();
+      if (v) coords.push(v);
     }
     return { name: name.trim(), coords };
   });
-
-  buildTable();
   applyFilter();
-}
-
-// ── construir tabla ───────────────────────────────────────
-function buildTable() {
-  const headerRow = document.getElementById('header-row');
-  const tbody = document.getElementById('tbody');
-  headerRow.innerHTML = '';
-  tbody.innerHTML = '';
-
-  // Máximo de coordenadas entre todos los jugadores
-  const maxCoords = Math.max(...players.map(p => p.coords.length), 0);
-
-  // Cabeceras (nombres)
-  players.forEach((p, col) => {
-    const th = document.createElement('th');
-    th.textContent = p.name;
-    th.dataset.col = col;
-    th.addEventListener('click', () => selectCol(col));
-    headerRow.appendChild(th);
-  });
-
-  // Filas de coordenadas
-  for (let row = 0; row < maxCoords; row++) {
-    const tr = document.createElement('tr');
-    players.forEach((p, col) => {
-      const td = document.createElement('td');
-      const val = p.coords[row] || '';
-      td.textContent = val || '—';
-      if (!val) td.classList.add('empty');
-      td.dataset.col = col;
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  }
-}
-
-// ── selección de columna ──────────────────────────────────
-function selectCol(col) {
-  activeCol = col;
-
-  // Limpiar resalte previo
-  document.querySelectorAll('.col-active').forEach(el => el.classList.remove('col-active'));
-
-  // Resaltar cabecera y todas las celdas de esa columna
-  document.querySelectorAll(`[data-col="${col}"]`).forEach(el => el.classList.add('col-active'));
 }
 
 // ── filtro ────────────────────────────────────────────────
 document.getElementById('search').addEventListener('input', function() {
   filterQ = this.value.trim().toLowerCase();
+  activeCol = -1;
   applyFilter();
 });
 
 function applyFilter() {
-  const ths = document.querySelectorAll('#header-row th');
-  const tds_by_col = {};
+  visPlayers = filterQ
+    ? allPlayers.filter(p =>
+        p.name.toLowerCase().includes(filterQ) ||
+        p.coords.some(c => c.toLowerCase().includes(filterQ)))
+    : allPlayers;
 
-  // Agrupar celdas por columna
-  document.querySelectorAll('#tbody td').forEach(td => {
-    const col = td.dataset.col;
-    if (!tds_by_col[col]) tds_by_col[col] = [];
-    tds_by_col[col].push(td);
-  });
+  maxCoords = visPlayers.reduce((m,p) => Math.max(m, p.coords.length), 0);
 
-  let visible = 0;
-  ths.forEach((th, col) => {
-    const p = players[col];
-    const match = !filterQ ||
-      p.name.toLowerCase().includes(filterQ) ||
-      p.coords.some(c => c.toLowerCase().includes(filterQ));
+  // Resetear render
+  rendered = { start:-1, end:-1 };
+  hrow.innerHTML = '';
+  tbody.innerHTML = '';
 
-    if (match) {
-      th.classList.remove('col-hidden');
-      (tds_by_col[col] || []).forEach(td => td.classList.remove('col-hidden'));
-      visible++;
-    } else {
-      th.classList.add('col-hidden');
-      (tds_by_col[col] || []).forEach(td => td.classList.add('col-hidden'));
+  // Ajustar ancho total de la tabla para que el scroll funcione
+  document.getElementById('vtable').style.width = (visPlayers.length * COL_W) + 'px';
+
+  buildRows();        // crear filas vacías (solo <tr>, sin <td>)
+  outer.scrollLeft = 0;
+  renderWindow();     // pintar ventana inicial
+
+  const n = visPlayers.length;
+  document.getElementById('status').textContent =
+    filterQ ? n + ' / ' + allPlayers.length + ' jugadores' : n + ' jugadores';
+}
+
+// ── construir filas vacías ────────────────────────────────
+function buildRows() {
+  tbody.innerHTML = '';
+  for (let r = 0; r < maxCoords; r++) {
+    const tr = document.createElement('tr');
+    tr.dataset.row = r;
+    tbody.appendChild(tr);
+  }
+}
+
+// ── ventana virtual ───────────────────────────────────────
+function getWindow() {
+  const scrollLeft = outer.scrollLeft;
+  const viewW      = outer.clientWidth;
+  const start = Math.max(0, Math.floor(scrollLeft / COL_W) - OVERSCAN);
+  const end   = Math.min(visPlayers.length - 1,
+                  Math.ceil((scrollLeft + viewW) / COL_W) + OVERSCAN);
+  return { start, end };
+}
+
+function renderWindow() {
+  const { start, end } = getWindow();
+  if (start === rendered.start && end === rendered.end) return;
+
+  // ── cabecera ──
+  hrow.innerHTML = '';
+
+  // spacer izquierdo
+  if (start > 0) {
+    const th = document.createElement('th');
+    th.className = 'spacer-left';
+    th.style.width = th.style.minWidth = th.style.maxWidth = (start * COL_W) + 'px';
+    hrow.appendChild(th);
+  }
+
+  for (let ci = start; ci <= end; ci++) {
+    const p  = visPlayers[ci];
+    const th = document.createElement('th');
+    th.textContent   = p.name;
+    th.title         = p.name;
+    th.dataset.ci    = ci;
+    if (ci === activeCol) th.classList.add('col-active');
+    th.addEventListener('click', () => selectCol(ci));
+    hrow.appendChild(th);
+  }
+
+  // spacer derecho
+  const rightCols = visPlayers.length - 1 - end;
+  if (rightCols > 0) {
+    const th = document.createElement('th');
+    th.className = 'spacer-right';
+    th.style.width = th.style.minWidth = th.style.maxWidth = (rightCols * COL_W) + 'px';
+    hrow.appendChild(th);
+  }
+
+  // ── filas de cuerpo ──
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach(tr => {
+    tr.innerHTML = '';
+    const rowIdx = parseInt(tr.dataset.row);
+
+    // spacer izquierdo
+    if (start > 0) {
+      const td = document.createElement('td');
+      td.className = 'spacer-left';
+      td.style.width = td.style.minWidth = td.style.maxWidth = (start * COL_W) + 'px';
+      td.style.border = 'none';
+      tr.appendChild(td);
+    }
+
+    for (let ci = start; ci <= end; ci++) {
+      const p   = visPlayers[ci];
+      const td  = document.createElement('td');
+      const val = p.coords[rowIdx] || '';
+      td.textContent = val || '—';
+      td.title       = val || '';
+      td.dataset.ci  = ci;
+      if (!val) td.classList.add('empty');
+      if (ci === activeCol) td.classList.add('col-active');
+      tr.appendChild(td);
+    }
+
+    // spacer derecho
+    if (rightCols > 0) {
+      const td = document.createElement('td');
+      td.className = 'spacer-right';
+      td.style.width = td.style.minWidth = td.style.maxWidth = (rightCols * COL_W) + 'px';
+      td.style.border = 'none';
+      tr.appendChild(td);
     }
   });
 
-  document.getElementById('status').textContent =
-    filterQ ? visible + ' / ' + players.length + ' jugadores' : players.length + ' jugadores';
+  rendered = { start, end };
 }
 
-// ── copiar columna activa ─────────────────────────────────
+// scroll → re-render si cambió la ventana
+outer.addEventListener('scroll', () => renderWindow(), { passive: true });
+
+// ── selección de columna ──────────────────────────────────
+function selectCol(ci) {
+  activeCol = ci;
+  // quitar activo del DOM actual
+  document.querySelectorAll('.col-active').forEach(el => el.classList.remove('col-active'));
+  // aplicar a los que estén visibles
+  document.querySelectorAll(`[data-ci="${ci}"]`).forEach(el => el.classList.add('col-active'));
+}
+
+// ── copiar ────────────────────────────────────────────────
 function copyActiveCol() {
   if (activeCol < 0) { toast('Haz clic en un jugador primero'); return; }
-  const p = players[activeCol];
-  const text = p.name + '\n' + p.coords.join('\n');
-  navigator.clipboard.writeText(text)
+  const p = visPlayers[activeCol];
+  navigator.clipboard.writeText(p.name + '\n' + p.coords.join('\n'))
     .then(() => toast('✓ "' + p.name + '" copiado (' + p.coords.length + ' coords)'))
-    .catch(() => toast('Error al copiar'));
+    .catch(()  => toast('Error al copiar'));
 }
 
 document.addEventListener('keydown', e => {
