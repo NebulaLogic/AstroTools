@@ -82,6 +82,7 @@
     <div>
       <div class="logo">Astro<span>Tools</span></div>
       <div class="subtitle">data/coordenadas/universo.csv</div>
+      <div class="subtitle" id="last-updated" style="color:var(--accent2);margin-top:3px;">Última actualización: —</div>
     </div>
     <a class="back-btn" href="https://nebulalogic.github.io/AstroTools/">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -130,6 +131,16 @@ async function load() {
   try {
     const r = await fetch(CSV_URL + '?t=' + Date.now());
     if (!r.ok) throw new Error('HTTP ' + r.status);
+
+    // Leer fecha de última modificación
+    const lastMod = r.headers.get('Last-Modified');
+    if (lastMod) {
+      const d = new Date(lastMod);
+      const formatted = d.toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' })
+        + ' ' + d.toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+      document.getElementById('last-updated').textContent = 'Última actualización: ' + formatted;
+    }
+
     parse(await r.text());
   } catch(e) {
     document.getElementById('status').textContent = 'Error cargando CSV.';
