@@ -1,0 +1,3 @@
+Un bot extremadamente útil sería uno que aprenda los horarios de los jugadores.
+
+Les atacaremos cuando duerman
